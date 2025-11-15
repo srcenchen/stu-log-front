@@ -22,10 +22,7 @@
     </v-navigation-drawer>
 
     <v-main>
-      <router-view v-slot="{ Component }">
-        <v-scroll-x-transition mode="out-in">
-          <component :is="Component" />
-        </v-scroll-x-transition>
+      <router-view>
       </router-view>
     </v-main>
   </v-layout>
@@ -49,17 +46,17 @@ const tabs = [
   {
     title: "日志上报",
     icon: "mdi-tray-plus",
-    to: "log_report",
+    to: "log-report",
   },
   {
     title: "日志管理",
     icon: "mdi-chart-box",
-    to: "log_board",
+    to: "log-board",
   },
   {
     title: "基础信息",
     icon: "mdi-information-box",
-    to: "base_info",
+    to: "base-info",
   },
 ];
 </script>
