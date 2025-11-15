@@ -1,14 +1,14 @@
 // Plugins
-import Components from 'unplugin-vue-components/vite'
-import Vue from '@vitejs/plugin-vue'
-import Vuetify, { transformAssetUrls } from 'vite-plugin-vuetify'
-import Fonts from 'unplugin-fonts/vite'
-import VueRouter from 'unplugin-vue-router/vite'
-import UnoCSS from 'unocss/vite'
+import Components from "unplugin-vue-components/vite";
+import Vue from "@vitejs/plugin-vue";
+import Vuetify, { transformAssetUrls } from "vite-plugin-vuetify";
+import Fonts from "unplugin-fonts/vite";
+import VueRouter from "unplugin-vue-router/vite";
+import UnoCSS from "unocss/vite";
 
 // Utilities
-import { defineConfig } from 'vite'
-import { fileURLToPath, URL } from 'node:url'
+import { defineConfig } from "vite";
+import { fileURLToPath, URL } from "node:url";
 
 // https://vitejs.dev/config/
 export default defineConfig({
@@ -22,7 +22,7 @@ export default defineConfig({
     Vuetify({
       autoImport: true,
       styles: {
-        configFile: 'src/styles/settings.scss',
+        configFile: "src/styles/settings.scss",
       },
     }),
     Components(),
@@ -30,9 +30,9 @@ export default defineConfig({
       fontsource: {
         families: [
           {
-            name: 'Roboto',
+            name: "Roboto",
             weights: [100, 300, 400, 500, 700, 900],
-            styles: ['normal', 'italic'],
+            styles: ["normal", "italic"],
           },
         ],
       },
@@ -40,30 +40,32 @@ export default defineConfig({
   ],
   optimizeDeps: {
     exclude: [
-      'vuetify',
-      'vue-router',
-      'unplugin-vue-router/runtime',
-      'unplugin-vue-router/data-loaders',
-      'unplugin-vue-router/data-loaders/basic',
+      "vuetify",
+      "vue-router",
+      "unplugin-vue-router/runtime",
+      "unplugin-vue-router/data-loaders",
+      "unplugin-vue-router/data-loaders/basic",
     ],
   },
-  define: { 'process.env': {} },
+  define: { "process.env": {} },
   resolve: {
     alias: {
-      '@': fileURLToPath(new URL('src', import.meta.url)),
+      "@": fileURLToPath(new URL("src", import.meta.url)),
     },
-    extensions: [
-      '.js',
-      '.json',
-      '.jsx',
-      '.mjs',
-      '.ts',
-      '.tsx',
-      '.vue',
-    ],
+    extensions: [".js", ".json", ".jsx", ".mjs", ".ts", ".tsx", ".vue"],
   },
   server: {
     host: "0.0.0.0",
     port: 3000,
+    proxy: {
+      "/v1": {
+        target: "http://192.168.1.238:8000",
+        changeOrigin: true,
+      },
+      "/resource": {
+        target: "http://192.168.1.238:8000",
+        changeOrigin: true,
+      },
+    },
   },
-})
+});
