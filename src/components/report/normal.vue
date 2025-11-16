@@ -41,23 +41,35 @@
     <v-file-input
       v-model="files"
       accept="image/png, image/jpeg, image/bmp"
-      label="Photos"
-      placeholder="Upload your photos"
+      label="图片"
+      placeholder="上传图片"
       prepend-icon="mdi-camera"
       multiple
+      chips
     ></v-file-input>
-    <v-btn @click="()=>{uploadFiles()}">upload</v-btn>
+    <v-btn
+      @click="
+        () => {
+          submit();
+        }
+      "
+      variant="outlined"
+      color="primary"
+      >提交</v-btn
+    >
   </div>
 </template>
 
 <script setup>
 import axios from "axios";
 import { onMounted, ref } from "vue";
+import { toast } from "vue3-toastify";
 // 数据
 const studentChoose = ref([]);
 const ruleChoose = ref();
 const scoreChange = ref(0);
 const comment = ref("");
+const gradeId = ref();
 
 const stduentList = ref([]);
 const ruleList = ref([]);
@@ -89,21 +101,56 @@ function queryRule() {
   });
 }
 
-const uploadFiles = async () => {
-  const formData = new FormData();
-  files.value.forEach((file) => {
-    formData.append("file", file);
-  });
-
-  try {
-    const res = await fetch("/upload?mode=image", {
-      method: "POST",
-      body: formData,
+const submit = async () => {
+  var imageIds = [];
+  if (files.value.length != 0) {
+    const formData = new FormData();
+    files.value.forEach((file) => {
+      formData.append("file", file);
     });
-    console.log("上传成功", await res.json());
-  } catch (err) {
-    console.error("上传失败", err);
+    try {
+      const res = await axios.post("/v1/upload?mode=image", formData);
+      imageIds = res.data.imageIds;
+    } catch (err) {
+      toast("出错了，上报失败", {
+        type: "error",
+        position: "top-center",
+        autoClose: 500,
+      });
+    }
   }
+  const stuInfo = await axios.get("/v1/base_info/student", {
+    params: {
+      id: 1,
+    },
+  });
+  try {
+    await axios.post("/v1/stu_log/report", {
+      studentIds: studentChoose.value,
+      ruleId: ruleChoose.value,
+      content: comment.value,
+      score: scoreChange.value,
+      gradeId: stuInfo.data.student.gradeId,
+      imageIds: imageIds,
+    });
+  } catch {
+    toast("出错了，上报失败", {
+      type: "error",
+      position: "top-center",
+      autoClose: 500,
+    });
+  }
+  toast("上报成功！", {
+    type: "success",
+    position: "top-center",
+    autoClose: 500,
+  });
+  // 清空
+  studentChoose.value = [];
+  ruleChoose.value = "";
+  scoreChange.value = 0;
+  comment.value = "";
+  files.value = [];
 };
 
 onMounted(() => {

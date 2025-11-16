@@ -157,7 +157,7 @@
           @click="
             endDatePick = false;
             endTimeShow = formatDateUsingIntl(endDate);
-            params['endTime'] = Math.floor(endDate.getTime() / 1000);
+            params['endTime'] = Math.floor(endDate.getTime() / 1000) + 86400;
           "
         ></v-btn>
       </v-card-actions>
@@ -193,7 +193,7 @@
       </v-card-actions>
     </v-card>
   </v-dialog>
-    <!-- Student Detail Dialog -->
+  <!-- Student Detail Dialog -->
   <v-dialog v-model="isShowDetailStu" max-width="800">
     <v-card :title="`${studentDetail.name}的日志记录`">
       <v-card-text>
@@ -220,6 +220,7 @@ import "@/api/stu_log";
 import { getStuLogs } from "@/api/stu_log";
 import axios from "axios";
 import { onMounted, ref, watch } from "vue";
+import { toast } from "vue3-toastify";
 // 状态保存变量
 const dataLoading = ref(false);
 const isShowDetailLog = ref(false);
@@ -288,6 +289,11 @@ async function revoke() {
       revoke: !stuLog.value.revoked,
     },
   });
+  toast("操作成功", {
+    type: "success",
+    position: "top-center",
+    autoClose: 500,
+  });
   fetchLogs();
 }
 onMounted(() => {
@@ -295,7 +301,7 @@ onMounted(() => {
   fetchGrades();
 });
 // 打开学生详情
-const studentDetail = ref({})
+const studentDetail = ref({});
 async function showStudentDetail(item) {
   studentDetail.value = item;
   isShowDetailStu.value = true;
@@ -331,6 +337,10 @@ function exportExcel() {
     .then((data) => {
       window.open(data.data.exportPath);
     });
+  toast("操作成功", {
+    type: "success",
+    position: "top-center",
+    autoClose: 500,
+  });
 }
-
 </script>

@@ -201,6 +201,7 @@ import { getGrades } from "@/api/grade";
 import { getStuLogs } from "@/api/stu_log";
 import axios from "axios";
 import { onMounted, ref, watch } from "vue";
+import { toast } from "vue3-toastify";
 
 // 状态保存变量
 const dataLoading = ref(false);
@@ -269,6 +270,11 @@ function exportExcel() {
     .then((data) => {
       window.open(data.data.exportPath);
     });
+  toast("操作成功", {
+    type: "success",
+    position: "top-center",
+    autoClose: 500,
+  });
 }
 
 // 获取学生列表
@@ -301,6 +307,11 @@ async function revoke() {
   });
   studentLogList.value = await getStuLogs({
     studentId: studentDetail.value.id,
+  });
+  toast("操作成功", {
+    type: "success",
+    position: "top-center",
+    autoClose: 500,
   });
   fetchStudentList();
 }

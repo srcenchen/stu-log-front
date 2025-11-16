@@ -38,11 +38,11 @@ if (!mobile.value) drawer.value = true;
 const isMobile = computed(() => mobile.value);
 // tabs 列
 const tabs = [
-  {
-    title: "首页",
-    icon: "mdi-view-dashboard",
-    to: "dashboard",
-  },
+  // {
+  //   title: "首页",
+  //   icon: "mdi-view-dashboard",
+  //   to: "dashboard",
+  // },
   {
     title: "日志上报",
     icon: "mdi-tray-plus",
