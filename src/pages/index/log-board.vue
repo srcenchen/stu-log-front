@@ -19,18 +19,25 @@
           >
         </div>
         <v-select
-          :items="options"
-          label="选择选项"
-          item-text="text"
-          item-value="value"
+          :items="grades"
+          v-model="params.gradeId"
+          label="年级选择"
+          item-title="gradeName"
+          item-value="id"
           :max-width="200"
           outlined
         />
-        <v-btn @click="isFilter = true" variant="outlined" class="mt-3 ml-2 mr-2">时间筛选</v-btn>
+        <v-btn
+          @click="isFilter = true"
+          variant="outlined"
+          class="mt-3 ml-2 mr-2"
+          >时间筛选</v-btn
+        >
       </div>
     </template>
     <template v-slot:item.revoked="{ item }">
-      {{ item.revoked ? "已撤销" : "尚未撤销" }}
+      <p class="text-red" v-if="!item.revoked">尚未撤销</p>
+      <p class="text-green" v-else>已撤销</p>
     </template>
     <template v-slot:item.students="{ item }">
       <v-tooltip
@@ -43,6 +50,7 @@
             v-bind="props"
             :content="stu.name"
             color="primary"
+            @click="showStudentDetail(stu)"
           ></v-badge>
         </template>
       </v-tooltip>
@@ -185,9 +193,29 @@
       </v-card-actions>
     </v-card>
   </v-dialog>
+    <!-- Student Detail Dialog -->
+  <v-dialog v-model="isShowDetailStu" max-width="800">
+    <v-card :title="`${studentDetail.name}的日志记录`">
+      <v-card-text>
+        <p v-for="item in studentLogList.list">
+          <span>在 </span>
+          <span class="text-indigo">{{ item.time }}</span>
+          <span> 因为 </span>
+          <span class="text-green">{{ `${item.rule}-${item.content} ` }}</span>
+          <span class="text-red">{{ `${item.score}分 ` }}</span>
+          <span class="text-red" v-if="!item.revoked">未撤销</span>
+          <span class="text-green" v-else>已撤销</span>
+        </p>
+      </v-card-text>
+      <v-card-actions class="bg-surface-light">
+        <v-btn text="好的" @click="isShowDetailStu = false"></v-btn>
+      </v-card-actions>
+    </v-card>
+  </v-dialog>
 </template>
 
 <script setup>
+import { getGrades } from "@/api/grade";
 import "@/api/stu_log";
 import { getStuLogs } from "@/api/stu_log";
 import axios from "axios";
@@ -203,11 +231,16 @@ const startTimeShow = ref("");
 const endTimeShow = ref("");
 const endDate = ref("");
 const isFilter = ref(false);
+const grades = ref([]);
+const isShowDetailStu = ref(false);
+const studentLogList = ref([]);
 // 参数信息
 var params = ref({
   page: 1,
   pageSize: 25,
+  gradeId: -1,
 });
+
 // Header
 const headers = ref([
   { title: "学生", key: "students" },
@@ -226,6 +259,18 @@ var logsData = ref({});
 async function fetchLogs() {
   dataLoading.value = true;
   logsData.value = await getStuLogs(params.value);
+  dataLoading.value = false;
+}
+// 获取年级表
+async function fetchGrades() {
+  dataLoading.value = true;
+  grades.value = await getGrades();
+  grades.value = grades.value.list;
+  grades.value.unshift({
+    id: -1,
+    gradeName: "全部",
+  });
+  console.log(grades.value);
   dataLoading.value = false;
 }
 // 打开详情页面
@@ -247,7 +292,18 @@ async function revoke() {
 }
 onMounted(() => {
   fetchLogs();
+  fetchGrades();
 });
+// 打开学生详情
+const studentDetail = ref({})
+async function showStudentDetail(item) {
+  studentDetail.value = item;
+  isShowDetailStu.value = true;
+  studentLogList.value = await getStuLogs({
+    studentId: item.id,
+  });
+  console.log(studentLogList.value.list);
+}
 
 watch(params.value, () => {
   fetchLogs();
@@ -276,4 +332,5 @@ function exportExcel() {
       window.open(data.data.exportPath);
     });
 }
+
 </script>
